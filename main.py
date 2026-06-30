@@ -98,48 +98,54 @@ def sync_github(commits, submissions):
     repo.config_writer().set_value("user", "name", commit.author.name).release()
     repo.config_writer().set_value("user", "email", commit.author.email).release()
 
+    language_extensions = {
+        "C++": "cpp",
+        "Java": "java",
+        "Python": "py",
+        "Python3": "py",
+        "MySQL": "sql",
+        "Bash": "sh",
+        "JavaScript": "js",
+        "TypeScript": "ts",
+        "C": "c",
+        "C#": "cs",
+        "Go": "go",
+        "Rust": "rs",
+        "Kotlin": "kt",
+        "Swift": "swift",
+        "PHP": "php",
+        "Ruby": "rb",
+        "Scala": "scala",
+        "Dart": "dart",
+        "Racket": "rkt",
+        "Oracle": "sql",
+    }
+
     for submission in submissions:
         commit_message = f"LeetCode Synchronization - {submission['title']} ({submission['language']})"
+
         if commit_message not in commits or commits[commit_message] < submission["timestamp"]:
+
             dir_name = f"{str(submission['id']).zfill(4)}-{submission['title_slug']}"
-            language_extensions = {
-    "C++": "cpp",
-    "Java": "java",
-    "Python": "py",
-    "Python3": "py",
-    "MySQL": "sql",
-    "Bash": "sh",
-    "JavaScript": "js",
-    "TypeScript": "ts",
-    "C": "c",
-    "C#": "cs",
-    "Go": "go",
-    "Rust": "rs",
-    "Kotlin": "kt",
-    "Swift": "swift",
-    "PHP": "php",
-    "Ruby": "rb",
-    "Scala": "scala",
-    "Dart": "dart",
-    "Racket": "rkt",
-    "Oracle": "sql",
-}
 
-ext = language_extensions.get(submission["language"])
+            ext = language_extensions.get(submission["language"])
 
-if ext is None:
-    print(f"Skipping unsupported language: {submission['language']}")
-    continue
+            if ext is None:
+                print(f"Skipping unsupported language: {submission['language']}")
+                continue
 
             pathlib.Path(f"problems/{dir_name}").mkdir(parents=True, exist_ok=True)
+
             with open(f"problems/{dir_name}/{dir_name}.{ext}", "wt") as fd:
                 fd.write(submission["code"].strip())
+
             with open(f"problems/{dir_name}/README.md", "wt") as fd:
                 content = f"<h2>{submission['id']}. {submission['title']}</h2>\n\n"
                 content += submission["content"].strip()
                 fd.write(content)
 
             submission["skills"].sort()
+
             new_submission = {
                 "id": submission["id"],
                 "title": submission["title"],
@@ -148,7 +154,8 @@ if ext is None:
                 "skills": submission["skills"],
             }
 
-            saved_submissions = list()
+            saved_submissions = []
+
             if os.path.isfile("submissions.json"):
                 with open("submissions.json", "rt") as fd:
                     saved_submissions = json.load(fd)
@@ -156,21 +163,25 @@ if ext is None:
             if new_submission not in saved_submissions:
                 saved_submissions.append(new_submission)
                 saved_submissions = sorted(saved_submissions, key=lambda entry: entry["id"])
+
                 update_readme(saved_submissions)
+
                 with open("submissions.json", "wt") as fd:
                     json.dump(saved_submissions, fd, ensure_ascii=False, indent=2)
 
-            # RFC 2822 (Thu, 07 Apr 2005 22:13:13 +0200) / ISO 8601 (2005-04-07T22:13:13)
-            # https://github.com/gitpython-developers/GitPython/blob/master/git/objects/util.py#L134
-            iso_datetime = email.utils.format_datetime(datetime.datetime.fromtimestamp(submission["timestamp"]))
+            iso_datetime = email.utils.format_datetime(
+                datetime.datetime.fromtimestamp(submission["timestamp"])
+            )
+
             os.environ["GIT_AUTHOR_DATE"] = iso_datetime
             os.environ["GIT_COMMITTER_DATE"] = iso_datetime
+
             repo.index.add("**")
             repo.index.commit(commit_message)
             repo.git.push("origin")
+
             os.unsetenv("GIT_AUTHOR_DATE")
             os.unsetenv("GIT_COMMITTER_DATE")
-
 
 def main():
     commits = parse_git_log()
