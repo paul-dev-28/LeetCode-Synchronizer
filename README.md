@@ -48,7 +48,7 @@ Here's a sample repository created using LeetCode Synchronizer: [leetcode-synchr
          runs-on: ubuntu-latest
          steps:
            - name: Run LeetCode Synchronizer
-             uses: dos-m0nk3y/LeetCode-Synchronizer@v1.1.0
+             uses: paul-dev-28/LeetCode-Synchronizer@main
              with:
                GITHUB_TOKEN: ${{ github.token }}
                LEETCODE_SESSION: ${{ secrets.LEETCODE_SESSION }}
