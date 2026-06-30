@@ -2,7 +2,7 @@
 
 **LeetCode Synchronizer** is a GitHub Action that automatically collects and organizes LeetCode submissions into a GitHub repository.
 
-Here's a sample repository created using LeetCode Synchronizer: [leetcode-synchronizer-sample](https://github.com/dos-m0nk3y/leetcode-synchronizer-sample)
+Here's my repository created using LeetCode Synchronizer: [Repository](https://github.com/paul-dev-28/DSA)
 
 ## Features
 
