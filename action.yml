@@ -1,43 +1,52 @@
 name: "LeetCode Synchronizer"
-description: "Automatically collect and organize LeetCode submissions into a GitHub repository"
+
+description: "Synchronize LeetCode submissions to GitHub."
+
 branding:
   icon: git-commit
-  color: black
+  color: blue
 
 inputs:
+
   GITHUB_TOKEN:
-    description: "GitHub Token"
     required: true
+    description: GitHub Token
+
   LEETCODE_SESSION:
-    description: "LeetCode Session"
     required: true
+    description: LeetCode Session Cookie
+
   LEETCODE_CSRF_TOKEN:
-    description: "LeetCode CSRF Token"
     required: true
+    description: LeetCode CSRF Token
 
 runs:
-  using: "composite"
+
+  using: composite
+
   steps:
-    - name: Checkout GitHub Repository
-      uses: actions/checkout@v3
+
+    - name: Checkout Repository
+      uses: actions/checkout@v4
       with:
         fetch-depth: 0
 
-    - name: Install Python
-      uses: actions/setup-python@v4
+    - name: Setup Python
+      uses: actions/setup-python@v5
       with:
-        python-version: "3.x"
+        python-version: "3.12"
 
-    - name: Resolve Dependencies
+    - name: Install Dependencies
+      shell: bash
       run: |
         python -m pip install --upgrade pip
-        pip install requests GitPython
-      shell: bash
+        pip install -r ${{ github.action_path }}/requirements.txt
 
-    - name: Run LeetCode Synchronizer
-      run: python ${{ github.action_path }}/main.py
+    - name: Run Synchronizer
       shell: bash
       env:
         GITHUB_TOKEN: ${{ inputs.GITHUB_TOKEN }}
         LEETCODE_SESSION: ${{ inputs.LEETCODE_SESSION }}
         LEETCODE_CSRF_TOKEN: ${{ inputs.LEETCODE_CSRF_TOKEN }}
+      run: |
+        python ${{ github.action_path }}/main.py
